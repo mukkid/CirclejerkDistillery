@@ -1,12 +1,25 @@
 import requests
 import re
+import getpass
 
-def scrape():
+credentials = {
+   "op":"login-main",
+   "user":raw_input("USERNAME: "),
+   "passwd":getpass.getpass("PASSWORD: "),
+   "api_type":"json"}
+
+def scrape(s):
     url = "http://www.reddit.com/r/circlejerk"
-    return requests.get(url).text
+    return s.get(url).text
 
-def find_titles():
-    return re.findall("<a class=\"title [^>]*>(.*?)</a>",scrape())
+def login(s):
+    loginurl = "https://ssl.reddit.com/api/login/{}"
+    r = s.post(loginurl.format(credentials["user"]),
+            params=credentials)
+    print r.json()
+
+def find_titles(s):
+    return re.findall("<a class=\"title [^>]*>(.*?)</a>",scrape(s))
 
 def re_quote(deQuote):
     escape_table = {"&quot;" : "\"",
@@ -18,5 +31,7 @@ def re_quote(deQuote):
     return deQuote
 
 if __name__ == "__main__":
-    print re_quote("\n\n".join(find_titles())).encode("utf-8")
+    user = requests.session()
+    login(user)
+    print re_quote("\n\n".join(find_titles(user))).encode("utf-8")
 
