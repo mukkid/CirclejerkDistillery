@@ -3,7 +3,7 @@ import re
 
 def scrape():
     url = "http://www.reddit.com/r/circlejerk"
-    return requests.get(url).content
+    return requests.get(url).text
 
 def find_titles():
     return re.findall("<a class=\"title [^>]*>(.*?)</a>",scrape())
