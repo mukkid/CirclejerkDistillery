@@ -10,11 +10,13 @@ def find_titles():
 
 def re_quote(deQuote):
     escape_table = {"&quot;" : "\"",
-                    "&amp;" : "&"}
+                    "&amp;" : "&",
+                    "&lt;" : "<",
+                    "&gt;" : ">"}
     for escape_code in escape_table.keys():
         deQuote=deQuote.replace(escape_code,escape_table[escape_code])
-        return deQuote
+    return deQuote
 
 if __name__ == "__main__":
-    print re_quote("\n\n".join(find_titles()))
+    print re_quote("\n\n".join(find_titles())).encode("utf-8")
 
