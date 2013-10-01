@@ -17,7 +17,6 @@ def scrape(s):
 def login(s):
     r = s.post(loginurl.format(credentials["user"]),
             params=credentials)
-    print r.json()
 
 def vote(s, direct, iden):
     vote_data = {
