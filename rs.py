@@ -3,7 +3,7 @@ import re
 import getpass
 
 loginurl = "https://ssl.reddit.com/api/login/{}"
-url = "http://www.reddit.com/r/circlejerk"
+url = "http://www.reddit.com/r/{}"
 voteurl = "http://www.reddit.com/api/vote"
 credentials = {
    "op":"login-main",
@@ -28,7 +28,7 @@ def vote(s, direct, iden):
        "uh":get_mod_hash(s)}
     return s.post(voteurl, params=vote_data)
 
-def get_data_fullname(s):
+def get_data_fullnames(s):
     return re.findall("data-fullname=\"(.*?)\"",scrape(s))
 
 def get_vote_hash(s):
@@ -49,9 +49,15 @@ def re_quote(deQuote):
         deQuote=deQuote.replace(escape_code,escape_table[escape_code])
     return deQuote
 
+def boat_all(s, direct):
+    for names in get_data_fullnames(s):
+        vote(s, direct, names)
+
 if __name__ == "__main__":
+    url = url.format(raw_input("SUBREDDIT: "))
     user = requests.session()
     login(user)
-    vote(user, 1, get_data_fullname(user)[0])
+    #boat_all(user, 1)
+    vote(user, 1, get_data_fullnames(user)[0])
     print re_quote("\n\n".join(find_titles(user))).encode("utf-8")
 
