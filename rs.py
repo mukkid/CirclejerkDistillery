@@ -52,12 +52,18 @@ def re_quote(deQuote):
 def boat_all(s, direct):
     for names in get_data_fullnames(s):
         vote(s, direct, names)
+def formatting(s):
+    form = re_quote("SPLITMEHERE".join(find_titles(s))).encode("utf-8")
+    form = str(form)
+    form = re.split('SPLITMEHERE',form)
+    form = list(enumerate(form,start=1))
+    for n in range(len(form)):
+        print str(form[n][0]) + ".  " + str(form[n][1]) + "\n"
+
 
 if __name__ == "__main__":
     url = url.format(raw_input("SUBREDDIT: "))
     user = requests.session()
     login(user)
-    #boat_all(user, 1)
-    vote(user, 1, get_data_fullnames(user)[0])
-    print re_quote("\n\n".join(find_titles(user))).encode("utf-8")
-
+    #vote(user, 1, get_data_fullnames(user)[0])
+    formatting(user)
