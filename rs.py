@@ -60,7 +60,9 @@ def formatting(s):
         print str(form[n][0]) + ".  " + str(form[n][1]) + "\n"
 
 def process_input(s, inp):
-    command = re.split(",",inp)
+    command = re.sub('up','1', inp, flags=re.IGNORECASE)
+    command = re.sub('down','-1', command, flags=re.IGNORECASE)
+    command = re.findall('-?\d+',command)
     vote(s, int(command[1]), get_data_fullnames(s)[int(command[0])-1])
     print 'voted'
 
@@ -71,7 +73,7 @@ if __name__ == "__main__":
     #vote(user, 1, get_data_fullnames(user)[0])
     formatting(user)
 while True:
-    inp = raw_input("COMMAND (post#, vote direction): ")
+    inp = raw_input("COMMAND (post#,vote direction): ")
     if inp == 'quit':
         break
     process_input(user,inp)
