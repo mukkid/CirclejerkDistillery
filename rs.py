@@ -112,17 +112,29 @@ def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,1,post_ids[int(re.findall('\d+',inp)[0])-1])
-        print "upvoted"
+        try:
+            vote(s,1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            print "upvoted"
+        except:
+            print "you need to log in for that!"
     elif re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
-        print "downvoted"
+        try:
+            vote(s,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            print "downvoted"
+        except:
+            print "you need to log in for that!"
     elif re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,0,post_ids[int(re.findall('\d+',inp)[0])-1])
-        print "unvoted"
+        try:
+            vote(s,0,post_ids[int(re.findall('\d+',inp)[0])-1])
+            print "unvoted"
+        except:
+            print "you need to log in for that"
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
-        find_content(s,
-        post_ids[int(re.findall('\d+',inp)[0])-1])
+        try:
+            find_content(s,
+            post_ids[int(re.findall('\d+',inp)[0])-1])
+        except:
+            print "!!!NOTHING TO SEE HERE!!!"
     elif re.match('/',inp)!=None:
         init(str(re.findall('/\w+$',inp)[0]))
     elif re.match('page',inp,re.IGNORECASE)!=None:
