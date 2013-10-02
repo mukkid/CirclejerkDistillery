@@ -70,7 +70,8 @@ down # ------- same as downvote\n\t\
 unvote # ----- unvotes the post,#\n\t\
 neutral # ---- same as unvote\n\t\
 zero # ------- same as unvote\n\t\
-content # ---- views the content of post,#\n\n\n"
+content # ---- views the content of post,#\n\t\
+/SUBREDDIT --- changed the subreddit to SUBREDDIT\n\n\n"
 
 def re_quote(deQuote):
     escape_table = {"&quot;" : "\"",
