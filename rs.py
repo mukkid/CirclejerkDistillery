@@ -2,6 +2,7 @@ import requests
 import re
 import getpass
 
+post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
 url = "http://www.reddit.com/r/{}"
 voteurl = "http://www.reddit.com/api/vote"
@@ -69,7 +70,7 @@ def find_content(s, postid):
     print re_quote(re.sub(fix,'',re.findall(pat,comurl)[1]))
 
 def boat_all(s, direct):
-    for names in get_data_fullnames(s):
+    for names in post_ids:
         vote(s, direct, names)
 def formatting(s):
     form = re_quote("SPLITMEHERE".join(find_titles(s))).encode("utf-8")
@@ -83,19 +84,19 @@ def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        vote(s,1,post_ids[int(re.findall('\d+',inp)[0])-1])
         print "upvoted"
     elif re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,-1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        vote(s,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
         print "downvoted"
     elif re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
-        vote(s,0,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        vote(s,0,post_ids[int(re.findall('\d+',inp)[0])-1])
         print "unvoted"
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
         find_content(s,
-        get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        post_ids[int(re.findall('\d+',inp)[0])-1])
 
-    elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:  
+    elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
         help()
 
 if __name__ == "__main__":
@@ -103,6 +104,7 @@ if __name__ == "__main__":
     user = requests.session()
     login(user)
     formatting(user)
+    post_ids = get_data_fullnames(user)
 while True:
     inp = raw_input("COMMAND: ")
     process_input(user,inp)
