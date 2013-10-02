@@ -82,21 +82,21 @@ def formatting(s):
 def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
-    if re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
+    elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
         vote(s,1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
         print "upvoted"
-    if re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
+    elif re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
         vote(s,-1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
         print "downvoted"
-    if re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
+    elif re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
         vote(s,0,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
         print "unvoted"
-    if re.match('content', inp,flags=re.IGNORECASE)!=None:
+    elif re.match('content', inp,flags=re.IGNORECASE)!=None:
         find_content(s,
         get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
 
-    if re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
-            help()
+    elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:  
+        help()
 
 if __name__ == "__main__":
     url = url.format(raw_input("SUBREDDIT: "))
