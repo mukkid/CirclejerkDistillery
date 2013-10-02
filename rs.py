@@ -43,10 +43,17 @@ def re_quote(deQuote):
     escape_table = {"&quot;" : "\"",
                     "&amp;" : "&",
                     "&lt;" : "<",
-                    "&gt;" : ">"}
+                    "&gt;" : ">",
+                    "&#39;" : "'"}
     for escape_code in escape_table.keys():
         deQuote=deQuote.replace(escape_code,escape_table[escape_code])
     return deQuote
+
+def find_content(s, postid):
+    comurl = s.get(url+"/comments/"+postid[3:]).text
+    pat = re.compile('<div class=\"md\">([\S\s]*?)</div>')
+    fix = re.compile('</?\w+?>')
+    print re_quote(re.sub(fix,'',re.findall(pat,comurl)[1]))
 
 def boat_all(s, direct):
     for names in get_data_fullnames(s):
@@ -60,20 +67,24 @@ def formatting(s):
         print str(form[n][0]) + ".  " + str(form[n][1]) + "\n"
 
 def process_input(s, inp):
+    if len(re.findall('content', inp,flags=re.IGNORECASE))>0:
+        find_content(s,
+        get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        return
     command = re.sub('up','1', inp, flags=re.IGNORECASE)
     command = re.sub('down','-1', command, flags=re.IGNORECASE)
     command = re.findall('-?\d+',command)
-    vote(s, int(command[1]), get_data_fullnames(s)[int(command[0])-1])
+    vote(s, int(command[1]),\
+get_data_fullnames(s)[int(command[0])-1])
     print 'voted'
 
 if __name__ == "__main__":
     url = url.format(raw_input("SUBREDDIT: "))
     user = requests.session()
     login(user)
-    #vote(user, 1, get_data_fullnames(user)[0])
     formatting(user)
 while True:
-    inp = raw_input("COMMAND (post#,vote direction): ")
-    if inp == 'quit':
+    inp = raw_input("COMMAND: ")
+    if len(re.findall('quit',inp,flags=re.IGNORECASE))>0:
         break
     process_input(user,inp)
