@@ -71,6 +71,7 @@ unvote # ----- unvotes the post,#\n\t\
 neutral # ---- same as unvote\n\t\
 zero # ------- same as unvote\n\t\
 content # ---- views the content of post,#\n\t\
+page --------- reprints the page\n\t\
 /SUBREDDIT --- changed the subreddit to SUBREDDIT\n\n\n"
 
 def re_quote(deQuote):
@@ -124,6 +125,8 @@ def process_input(s, inp):
         post_ids[int(re.findall('\d+',inp)[0])-1])
     elif re.match('/',inp)!=None:
         init(str(re.findall('/\w+$',inp)[0]))
+    elif re.match('page',inp,re.IGNORECASE)!=None:
+        formatting(s)
     elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
         help()
 
