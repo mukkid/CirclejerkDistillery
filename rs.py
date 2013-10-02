@@ -8,8 +8,10 @@ first_time = True
 sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
+logouturl = "http://www.reddit.com/logout"
 baseurl = "http://www.reddit.com/r/{}"
 url = ""
+subreddit = ''
 voteurl = "http://www.reddit.com/api/vote"
 credentials = {
    "op":"login-main",
@@ -17,13 +19,14 @@ credentials = {
    "passwd":getpass.getpass("PASSWORD: "),
    "api_type":"json"}
 
-def init(subreddit=raw_input("SUBREDDIT: ")):
-    global user
+def init(sub=raw_input("SUBREDDIT: ")):
+    global use
     global url
     global first_time
     global scraped
     global post_ids
-    url = baseurl.format(subreddit)
+    subreddit = sub
+    url = baseurl.format(sub)
     scraped = scrape(user)
     if first_time:
         login(user)
@@ -38,6 +41,15 @@ def login(s):
     r = s.post(loginurl.format(credentials["user"]),
             params=credentials)
     print r.json()
+
+def logout(s):
+    outdata = {
+            'uh':get_mod_hash(s),
+            'top':off,
+            'dest':'/r/'+subreddit}
+    r = s.post(logouturl,params=outdata)
+    print r.json()
+
 def vote(s, direct, iden):
     vote_data = {
        "id":iden,
@@ -72,6 +84,7 @@ neutral # ---- same as unvote\n\t\
 zero # ------- same as unvote\n\t\
 content # ---- views the content of post,#\n\t\
 page --------- reprints the page\n\t\
+login -------- prompts the user to login\n\t\
 /SUBREDDIT --- changed the subreddit to SUBREDDIT\n\n\n"
 
 def re_quote(deQuote):
@@ -99,15 +112,18 @@ def boat_all(s, direct):
     for names in post_ids:
         vote(s, direct, names)
 def formatting(s):
-    form = re_quote("SPLITMEHERE".join(find_titles(s))).encode("utf-8")
-    form = str(form)
-    form = re.split('SPLITMEHERE',form)
-    form = list(enumerate(form,start=1))
-    tagged = get_tags(s)
-    for n in range(len(form)):
-        print (str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
-str(form[n][1]).decode('utf-8') + "\n")
-
+    try:
+        form = re_quote("SPLITMEHERE".\
+join(find_titles(s))).encode("utf-8")
+        form = str(form)
+        form = re.split('SPLITMEHERE',form)
+        form = list(enumerate(form,start=1))
+        tagged = get_tags(s)
+        for n in range(len(form)):
+            print (str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
+    str(form[n][1]).decode('utf-8') + "\n")
+    except:
+        print "nope"
 def process_input(s, inp):
     global user
     global first_time
@@ -139,10 +155,17 @@ def process_input(s, inp):
         except:
             print "!!!NOTHING TO SEE HERE!!!"
     elif re.match('/',inp)!=None:
-        init(str(re.findall('/\w+$',inp)[0]))
+        try:
+            init(str(re.findall('/\w+$',inp)[0]))
+        except:
+            print "COULDN'T FIND THAT SUBREDDIT"
     elif re.match('page',inp,re.IGNORECASE)!=None:
         formatting(s)
     elif re.match('login',inp,re.IGNORECASE)!=None:
+        try:
+            logout(user)
+        except:
+           print "" 
         user = requests.session()
         credentials['user'] = raw_input("USERNAME: ")
         credentials['passwd'] = getpass.getpass("PASSWORD: ")
