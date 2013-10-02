@@ -3,16 +3,33 @@ import re
 import getpass
 
 
+user = requests.session()
+first_time = True
 sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
-url = "http://www.reddit.com/r/{}"
+baseurl = "http://www.reddit.com/r/{}"
+url = ""
 voteurl = "http://www.reddit.com/api/vote"
 credentials = {
    "op":"login-main",
    "user":raw_input("USERNAME: "),
    "passwd":getpass.getpass("PASSWORD: "),
    "api_type":"json"}
+
+def init(subreddit=raw_input("SUBREDDIT: ")):
+    global user
+    global url
+    global first_time
+    global scraped
+    global post_ids
+    url = baseurl.format(subreddit)
+    scraped = scrape(user)
+    if first_time:
+        login(user)
+        first_time = False
+    formatting(user)
+    post_ids = get_data_fullnames(user)
 
 def scrape(s):
     return s.get(url).text
@@ -104,17 +121,13 @@ def process_input(s, inp):
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
         find_content(s,
         post_ids[int(re.findall('\d+',inp)[0])-1])
-
+    elif re.match('/',inp)!=None:
+        init(str(re.findall('/\w+$',inp)[0]))
     elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
         help()
 
 if __name__ == "__main__":
-    url = url.format(raw_input("SUBREDDIT: "))
-    user = requests.session()
-    scraped = scrape(user)
-    login(user)
-    formatting(user)
-    post_ids = get_data_fullnames(user)
+    init()
 while True:
     inp = raw_input("COMMAND: ")
     process_input(user,inp)
