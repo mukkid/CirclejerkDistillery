@@ -2,6 +2,8 @@ import requests
 import re
 import getpass
 
+
+sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
 url = "http://www.reddit.com/r/{}"
@@ -29,16 +31,16 @@ def vote(s, direct, iden):
     return s.post(voteurl, params=vote_data)
 
 def get_data_fullnames(s):
-    return re.findall("data-fullname=\"(.*?)\"",scrape(s))
+    return re.findall("data-fullname=\"(.*?)\"",scraped)
 
 def get_vote_hash(s):
-    return re.findall("\"vote_hash\": \"(.*?)\",",scrape(s))[0]
+    return re.findall("\"vote_hash\": \"(.*?)\",",scraped)[0]
 
 def get_mod_hash(s):
-    return re.findall("\"modhash\": \"(.*?)\",",scrape(s))[0]
+    return re.findall("\"modhash\": \"(.*?)\",",scraped)[0]
 
 def find_titles(s):
-    return re.findall("<a class=\"title [^>]*>(.*?)</a>",scrape(s))
+    return re.findall("<a class=\"title [^>]*>(.*?)</a>",scraped)
 
 def help():
     print "Hello redditer!\n\ncommands:\n\n\t\
@@ -63,6 +65,11 @@ def re_quote(deQuote):
         deQuote=deQuote.replace(escape_code,escape_table[escape_code])
     return deQuote
 
+def get_tags(s):
+    tagpat = re.compile('<span \
+class=\"domain\">\(<a href=\"[\S\s]*?>(.*?)</a>')
+    return re.findall(tagpat,scraped)
+
 def find_content(s, postid):
     comurl = s.get(url+"/comments/"+postid[3:]).text
     pat = re.compile('<div class=\"md\">([\S\s]*?)</div>')
@@ -77,8 +84,10 @@ def formatting(s):
     form = str(form)
     form = re.split('SPLITMEHERE',form)
     form = list(enumerate(form,start=1))
+    tagged = get_tags(s)
     for n in range(len(form)):
-        print str(form[n][0]) + ".  " + str(form[n][1]) + "\n"
+        print str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
+str(form[n][1]) + "\n"
 
 def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
@@ -102,6 +111,7 @@ def process_input(s, inp):
 if __name__ == "__main__":
     url = url.format(raw_input("SUBREDDIT: "))
     user = requests.session()
+    scraped = scrape(user)
     login(user)
     formatting(user)
     post_ids = get_data_fullnames(user)
