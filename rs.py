@@ -105,8 +105,8 @@ def formatting(s):
     form = list(enumerate(form,start=1))
     tagged = get_tags(s)
     for n in range(len(form)):
-        print str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
-str(form[n][1]) + "\n"
+        print (str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
+str(form[n][1]).decode('utf-8') + "\n")
 
 def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
