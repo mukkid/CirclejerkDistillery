@@ -39,6 +39,19 @@ def get_mod_hash(s):
 def find_titles(s):
     return re.findall("<a class=\"title [^>]*>(.*?)</a>",scrape(s))
 
+def help():
+    print "Hello redditer!\n\ncommands:\n\n\t\
+quit  -------- exits out of the distillery\n\t\
+exit  -------- same as quit\n\t\
+upvote # ----- upvotes the post,#\n\t\
+up #  -------- same as upvote\n\t\
+downvote # --- downvotes the post,#\n\t\
+down # ------- same as downvote\n\t\
+unvote # ----- unvotes the post,#\n\t\
+neutral # ---- same as unvote\n\t\
+zero # ------- same as unvote\n\t\
+content # ---- views the content of post,#\n\n\n"
+
 def re_quote(deQuote):
     escape_table = {"&quot;" : "\"",
                     "&amp;" : "&",
@@ -67,16 +80,23 @@ def formatting(s):
         print str(form[n][0]) + ".  " + str(form[n][1]) + "\n"
 
 def process_input(s, inp):
-    if len(re.findall('content', inp,flags=re.IGNORECASE))>0:
+    if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
+        exit()
+    if re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
+        vote(s,1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        print "upvoted"
+    if re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
+        vote(s,-1,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        print "downvoted"
+    if re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
+        vote(s,0,get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
+        print "unvoted"
+    if re.match('content', inp,flags=re.IGNORECASE)!=None:
         find_content(s,
         get_data_fullnames(s)[int(re.findall('\d+',inp)[0])-1])
-        return
-    command = re.sub('up','1', inp, flags=re.IGNORECASE)
-    command = re.sub('down','-1', command, flags=re.IGNORECASE)
-    command = re.findall('-?\d+',command)
-    vote(s, int(command[1]),\
-get_data_fullnames(s)[int(command[0])-1])
-    print 'voted'
+
+    if re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
+            help()
 
 if __name__ == "__main__":
     url = url.format(raw_input("SUBREDDIT: "))
@@ -85,6 +105,4 @@ if __name__ == "__main__":
     formatting(user)
 while True:
     inp = raw_input("COMMAND: ")
-    if len(re.findall('quit',inp,flags=re.IGNORECASE))>0:
-        break
     process_input(user,inp)
