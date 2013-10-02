@@ -31,6 +31,7 @@ def init(sub=raw_input("SUBREDDIT: ")):
     if first_time:
         login(user)
         first_time = False
+    print user.get('http://www.reddit.com/api/me.json').text
     formatting(user)
     post_ids = get_data_fullnames(user)
 
@@ -66,7 +67,8 @@ def get_vote_hash(s):
     return re.findall("\"vote_hash\": \"(.*?)\",",scraped)[0]
 
 def get_mod_hash(s):
-    return re.findall("\"modhash\": \"(.*?)\",",scraped)[0]
+    mhash = s.get('http://www.reddit.com/api/me.json').text
+    return re.findall('\"modhash\": \"(\w+)?\"',mhash)[0]
 
 def find_titles(s):
     return re.findall("<a class=\"title [^>]*>(.*?)</a>",scraped)
@@ -131,23 +133,14 @@ def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
-        try:
-            vote(s,1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,1,post_ids[int(re.findall('\d+',inp)[0])-1])
             print "upvoted"
-        except:
-            print "you need to log in for that!"
     elif re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
-        try:
-            vote(s,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
             print "downvoted"
-        except:
-            print "you need to log in for that!"
     elif re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
-        try:
-            vote(s,0,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,0,post_ids[int(re.findall('\d+',inp)[0])-1])
             print "unvoted"
-        except:
-            print "you need to log in for that"
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
         try:
             find_content(s,
