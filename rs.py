@@ -3,6 +3,7 @@ import re
 import getpass
 
 
+page = 1
 user = requests.session()
 first_time = True
 sraped = ''
@@ -86,6 +87,7 @@ neutral # ---- same as unvote\n\t\
 zero # ------- same as unvote\n\t\
 content # ---- views the content of post,#\n\t\
 page --------- reprints the page\n\t\
+next --------- goes to the next page in this subreddit\n\t\
 login -------- prompts the user to login\n\t\
 /SUBREDDIT --- changed the subreddit to SUBREDDIT\n\n\n"
 
@@ -105,15 +107,19 @@ class=\"domain\">\(<a href=\"[\S\s]*?>(.*?)</a>')
     return re.findall(tagpat,scraped)
 
 def find_content(s, postid):
-    comurl = s.get(url+"/comments/"+postid[3:]).text
+    global post_ids
+    global url
+    url = re.sub('/\?count=.+','',url)
+    comurl = s.get(url+"/comments/"+post_ids[postid][3:]).text
     pat = re.compile('<div class=\"md\">([\S\s]*?)</div>')
     fix = re.compile('</?\w+?>')
-    print re_quote(re.sub(fix,'',re.findall(pat,comurl)[1]))
+    print re_quote(re.sub(fix,'',str(re.findall(pat,comurl)[1])))
 
 def boat_all(s, direct):
     for names in post_ids:
         vote(s, direct, names)
 def formatting(s):
+    global page
     try:
         form = re_quote("SPLITMEHERE".\
 join(find_titles(s))).encode("utf-8")
@@ -122,14 +128,28 @@ join(find_titles(s))).encode("utf-8")
         form = list(enumerate(form,start=1))
         tagged = get_tags(s)
         for n in range(len(form)):
-            print (str(form[n][0]).rjust(2) + ".  ["+tagged[n]+"]  "+\
-    str(form[n][1]).decode('utf-8') + "\n")
+            print (str(form[n][0]+25*\
+(page-1)).rjust(2)+".  ["+tagged[n]+"]  "+\
+str(form[n][1]).decode('utf-8') + "\n")
     except:
         print "nope"
+
+def move_pages():
+    global post_ids
+    global url
+    global page
+    global scraped
+    url = url+'/?count=1&after='+post_ids[len(post_ids)-1]
+    scraped = scrape(user)
+    post_ids = get_data_fullnames(user)
+    page = page+1
+    formatting(user)
+
 def process_input(s, inp):
     global user
     global first_time
     global credentials
+    global page
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
@@ -142,11 +162,10 @@ def process_input(s, inp):
             vote(user,0,post_ids[int(re.findall('\d+',inp)[0])-1])
             print "unvoted"
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
-        try:
-            find_content(s,
-            post_ids[int(re.findall('\d+',inp)[0])-1])
-        except:
-            print "!!!NOTHING TO SEE HERE!!!"
+        # try:
+            find_content(s,int(re.findall('\d+',inp)[0])-25*(page-1)-1)
+            # except:
+           # print "!!!NOTHING TO SEE HERE!!!"
     elif re.match('/',inp)!=None:
         try:
             init(str(re.findall('/\w+$',inp)[0]))
@@ -154,11 +173,13 @@ def process_input(s, inp):
             print "COULDN'T FIND THAT SUBREDDIT"
     elif re.match('page',inp,re.IGNORECASE)!=None:
         formatting(s)
+    elif re.match('next',inp,re.IGNORECASE)!=None:
+        move_pages()
     elif re.match('login',inp,re.IGNORECASE)!=None:
         try:
             logout(user)
         except:
-           print "" 
+           print ""
         user = requests.session()
         credentials['user'] = raw_input("USERNAME: ")
         credentials['passwd'] = getpass.getpass("PASSWORD: ")
