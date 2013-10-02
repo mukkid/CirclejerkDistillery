@@ -37,7 +37,7 @@ def scrape(s):
 def login(s):
     r = s.post(loginurl.format(credentials["user"]),
             params=credentials)
-
+    print r.json()
 def vote(s, direct, iden):
     vote_data = {
        "id":iden,
@@ -109,6 +109,9 @@ def formatting(s):
 str(form[n][1]).decode('utf-8') + "\n")
 
 def process_input(s, inp):
+    global user
+    global first_time
+    global credentials
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
@@ -139,6 +142,12 @@ def process_input(s, inp):
         init(str(re.findall('/\w+$',inp)[0]))
     elif re.match('page',inp,re.IGNORECASE)!=None:
         formatting(s)
+    elif re.match('login',inp,re.IGNORECASE)!=None:
+        user = requests.session()
+        credentials['user'] = raw_input("USERNAME: ")
+        credentials['passwd'] = getpass.getpass("PASSWORD: ")
+        first_time = True
+        init()
     elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
         help()
 
