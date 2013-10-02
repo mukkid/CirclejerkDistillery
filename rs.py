@@ -88,6 +88,9 @@ zero # ------- same as unvote\n\t\
 content # ---- views the content of post,#\n\t\
 page --------- reprints the page\n\t\
 next --------- goes to the next page in this subreddit\n\t\
+prev --------- goes to the previous page in this subreddit\n\t\
+previous ----- same as prev\n\t\
+back --------- same as prev\n\t\
 login -------- prompts the user to login\n\t\
 /SUBREDDIT --- changed the subreddit to SUBREDDIT\n\n\n"
 
@@ -134,6 +137,18 @@ str(form[n][1]).decode('utf-8') + "\n")
     except:
         print "nope"
 
+def move_back():
+    global post_ids
+    global url
+    global page
+    global scraped
+    url = re.findall\
+('nextprev\">view more:&#32;<a href=\"([\S\s]*?)\"',scraped)[0]
+    scraped = scrape(user)
+    post_ids = get_data_fullnames(user)
+    page = page - 1
+    formatting(user)
+
 def move_pages():
     global post_ids
     global url
@@ -175,6 +190,8 @@ def process_input(s, inp):
         formatting(s)
     elif re.match('next',inp,re.IGNORECASE)!=None:
         move_pages()
+    elif re.match('prev|back|previous',inp,re.IGNORECASE)!=None:
+        move_back()
     elif re.match('login',inp,re.IGNORECASE)!=None:
         try:
             logout(user)
