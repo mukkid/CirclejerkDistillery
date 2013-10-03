@@ -5,11 +5,13 @@ import getpass
 page = 1
 user = requests.session()
 first_time = True
+logged_in = False
 comment_number = 10
 sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
 logouturl = "http://www.reddit.com/logout"
+checkurl = "http://www.reddit.com/api/username_available.json"
 baseurl = "http://www.reddit.com/r/{}"
 url = ""
 subreddit = ''
@@ -32,27 +34,53 @@ def init(sub=raw_input("SUBREDDIT: ")):
     if first_time:
         login(user)
         first_time = False
-    print user.get('http://www.reddit.com/api/me.json').text
+    #print user.get('http://www.reddit.com/api/me.json').text
     formatting(user)
     post_ids = get_data_fullnames(user)
 
 def scrape(s):
     return s.get(url).text
 
+def check_user(user):
+    outdata = {"user": user}
+    r = requests.get(checkurl, params=outdata)
+    return r.text == "false"
+
 def login(s):
-    r = s.post(loginurl.format(credentials["user"]),
-            params=credentials)
-    print r.json()
+    global logged_in
+    if logged_in: logout(s)
+    if credentials['user'] \
+        and check_user(credentials['user']) \
+        and credentials['passwd']:
+        r = s.post(loginurl.format(credentials["user"]),
+                params=credentials)
+        try:
+            error = r.json()['json']['errors']
+            if error:
+                print "\n".join(["{0}: {1}".format(i[0], i[1]) for i in error])
+                logged_in = Flase
+                return False
+            else:
+                logged_in = True
+                return True
+        except:
+            logged_in = False
+            return False
+    else:
+        print "INVALID_USER: '{}'".format(credentials['user'])
+        logged_in = False
+        return False
 
 def logout(s):
     outdata = {
             'uh':get_mod_hash(s),
-            'top':off,
+            'top':"off",
             'dest':'/r/'+subreddit}
     r = s.post(logouturl,params=outdata)
-    print r.json()
+    logged_in = False
 
 def vote(s, direct, iden):
+    if not logged_in: return False
     vote_data = {
        "id":iden,
        "dir":direct,
@@ -68,8 +96,11 @@ def get_vote_hash(s):
     return re.findall("\"vote_hash\": \"(.*?)\",",scraped)[0]
 
 def get_mod_hash(s):
-    mhash = s.get('http://www.reddit.com/api/me.json').text
-    return re.findall('\"modhash\": \"(\w+)?\"',mhash)[0]
+    mhash = s.get('http://www.reddit.com/api/me.json')
+    try:
+        return mhash.json()['data']['modhash']
+    except:
+        return ""
 
 def find_titles(s):
     return re.findall("<a class=\"title [^>]*>(.*?)</a>",scraped)
@@ -219,20 +250,14 @@ def process_input(s, inp):
     elif re.match('comnum',inp,re.IGNORECASE)!=None:
         set_comment_number(int(re.findall('\d+',inp)[0]))
     elif re.match('login',inp,re.IGNORECASE)!=None:
-        try:
-            logout(user)
-        except:
-           print ""
-        user = requests.session()
         credentials['user'] = raw_input("USERNAME: ")
         credentials['passwd'] = getpass.getpass("PASSWORD: ")
-        first_time = True
-        init()
+        login(user)
     elif re.match('help|h|man|manual|h[a+]lp',inp,re.IGNORECASE)!=0:
         help()
 
 if __name__ == "__main__":
     init()
-while True:
-    inp = raw_input("COMMAND: ")
-    process_input(user,inp)
+    while True:
+        inp = raw_input("COMMAND: ")
+        process_input(user,inp)
