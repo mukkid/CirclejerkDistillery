@@ -6,6 +6,7 @@ import getpass
 page = 1
 user = requests.session()
 first_time = True
+comment_number = 10
 sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
@@ -86,6 +87,8 @@ unvote # ----- unvotes the post,#\n\t\
 neutral # ---- same as unvote\n\t\
 zero # ------- same as unvote\n\t\
 content # ---- views the content of post,#\n\t\
+comments # --- views the comments of post,#\n\t\
+comnum # ----- changes number of comments viewed by comments to #\n\t\
 page --------- reprints the page\n\t\
 next --------- goes to the next page in this subreddit\n\t\
 prev --------- goes to the previous page in this subreddit\n\t\
@@ -108,6 +111,16 @@ def get_tags(s):
     tagpat = re.compile('<span \
 class=\"domain\">\(<a href=\"[\S\s]*?>(.*?)</a>')
     return re.findall(tagpat,scraped)
+
+def find_comments(s, postid):
+    global post_ids
+    global url
+    url = re.sub('/\?count=.+','',url)
+    comurl = s.get(url+"/comments/"+post_ids[postid][3:]).text
+    pat = re.compile('<div class=\"md\">([\S\s]*?)</div>')
+    fix = re.compile('</?\w+?>')
+    for n in range(2,comment_number):
+        print re_quote(re.sub(fix,'',str(re.findall(pat,comurl)[n])))
 
 def find_content(s, postid):
     global post_ids
@@ -160,6 +173,10 @@ def move_pages():
     page = page+1
     formatting(user)
 
+def set_comment_number(number):
+    global comment_number
+    comment_number = number+2
+
 def process_input(s, inp):
     global user
     global first_time
@@ -181,6 +198,11 @@ def process_input(s, inp):
             find_content(s,int(re.findall('\d+',inp)[0])-25*(page-1)-1)
             # except:
            # print "!!!NOTHING TO SEE HERE!!!"
+    elif re.match('comments', inp,flags=re.IGNORECASE)!=None:
+        # try:
+        find_comments(s,int(re.findall('\d+',inp)[0])-25*(page-1)-1)
+            # except:
+           # print "!!!NOTHING TO SEE HERE!!!"
     elif re.match('/',inp)!=None:
         try:
             init(str(re.findall('/\w+$',inp)[0]))
@@ -192,6 +214,8 @@ def process_input(s, inp):
         move_pages()
     elif re.match('prev|back|previous',inp,re.IGNORECASE)!=None:
         move_back()
+    elif re.match('comnum',inp,re.IGNORECASE)!=None:
+        set_comment_number(int(re.findall('\d+',inp)[0]))
     elif re.match('login',inp,re.IGNORECASE)!=None:
         try:
             logout(user)
