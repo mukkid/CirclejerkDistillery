@@ -11,6 +11,7 @@ sraped = ''
 post_ids = []
 loginurl = "https://ssl.reddit.com/api/login/{}"
 logouturl = "http://www.reddit.com/logout"
+checkurl = "http://www.reddit.com/api/username_available.json"
 baseurl = "http://www.reddit.com/r/{}"
 url = ""
 subreddit = ''
@@ -40,10 +41,17 @@ def init(sub=raw_input("SUBREDDIT: ")):
 def scrape(s):
     return s.get(url).text
 
+def check_user(user):
+    outdata = {"user": user}
+    r = requests.get(checkurl, params=outdata)
+    return r.text == "false"
+
 def login(s):
     global logged_in
     if logged_in: logout(s)
-    if credentials['user'] and credentials['passwd']:
+    if credentials['user'] \
+        and check_user(credentials['user']) \
+        and credentials['passwd']:
         r = s.post(loginurl.format(credentials["user"]),
                 params=credentials)
         try:
