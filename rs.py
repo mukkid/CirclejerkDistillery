@@ -184,13 +184,16 @@ def process_input(s, inp):
     if re.match('quit|exit',inp,flags=re.IGNORECASE)!=None:
         exit()
     elif re.match('up|upvote',inp,flags=re.IGNORECASE)!=None:
-            vote(user,1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,1,
+            post_ids[int(re.findall('\d+',inp)[0])-25*(page-1)-1])
             print "upvoted"
     elif re.match('down|downvote',inp,flags=re.IGNORECASE)!=None:
-            vote(user,-1,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,-1,
+            post_ids[int(re.findall('\d+',inp)[0])-25*(page-1)-1])
             print "downvoted"
     elif re.match('neutral|zero|unvote',inp,flags=re.IGNORECASE)!=None:
-            vote(user,0,post_ids[int(re.findall('\d+',inp)[0])-1])
+            vote(user,0,
+            post_ids[int(re.findall('\d+',inp)[0])-25*(page-1)-1])
             print "unvoted"
     elif re.match('content', inp,flags=re.IGNORECASE)!=None:
         # try:
