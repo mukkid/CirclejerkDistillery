@@ -111,6 +111,10 @@ def get_tags(s):
 class=\"domain\">\(<a href=\"[\S\s]*?>(.*?)</a>')
     return re.findall(tagpat,scraped)
 
+def get_votes(s):
+    votpat = re.compile('<div class=\"score unvoted\">(\d+?)<')
+    return re.findall(votepat, scraped)
+
 def find_comments(s, postid):
     global post_ids
     global url
@@ -142,9 +146,11 @@ join(find_titles(s))).encode("utf-8")
         form = re.split('SPLITMEHERE',form)
         form = list(enumerate(form,start=1))
         tagged = get_tags(s)
+        votes = get_votes(s)
         for n in range(len(form)):
             print (str(form[n][0]+25*\
-(page-1)).rjust(2)+".  ["+tagged[n]+"]  "+\
+(page-1)).rjust(2)+".  ["+tagged[n]+"]  ("+\
+votes[n]+")  "+\
 str(form[n][1]).decode('utf-8') + "\n")
     except:
         print "nope"
