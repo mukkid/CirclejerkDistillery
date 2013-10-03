@@ -67,6 +67,7 @@ def login(s):
             logged_in = False
             return False
     else:
+        print "INVALID_USER: '{}'".format(credentials['user'])
         logged_in = False
         return False
 
