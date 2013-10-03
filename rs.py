@@ -2,7 +2,6 @@ import requests
 import re
 import getpass
 
-
 page = 1
 user = requests.session()
 first_time = True
