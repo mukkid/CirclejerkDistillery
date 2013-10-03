@@ -150,7 +150,8 @@ def find_comments(s, postid):
     pat = re.compile('<div class=\"md\">([\S\s]*?)</div>')
     fix = re.compile('</?\w+?>')
     for n in range(2,comment_number):
-        print re_quote(re.sub(fix,'',str(re.findall(pat,comurl)[n])))
+        print re_quote(re.sub(fix,'',
+        str(re.findall(pat,comurl)[n])).decode('utf-8'))
 
 def find_content(s, postid):
     global post_ids
