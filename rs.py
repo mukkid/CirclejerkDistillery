@@ -144,7 +144,7 @@ join(find_titles(s))).encode("utf-8")
         tagged = get_tags(s)
         for n in range(len(form)):
             print (str(form[n][0]+25*\
-(page-1)).rjust(2)+".  ["+tagged[n]+"]  ("+\
+(page-1)).rjust(2)+".  ["+tagged[n]+"]  "+\
 str(form[n][1]).decode('utf-8') + "\n")
     except:
         print "nope"
